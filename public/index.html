@@ -36,9 +36,10 @@
           <p>Last year, we had <a href="http://bit.ly/gdcr13map" target="_blank">170 cities around the world</a> participate in the Global Day of Coderetreat. This year we expect even more! We are currently in the process of registering cities. If you are interested in hosting or facilitating an event in your city, please fill in the <a href="http://bit.ly/gdcr14_leader_reg">host and facilitator registration form</a>. As we register events, you can find out if there is one in your city on the official <a href="http://coderetreat.org/events/event/listByType?type=gdcr14">GDCR 2014 event list page</a>.</p>
           <p>We already have more than <strong>15</strong> registered events!</p>
 
-          <div class="center" id="city_map">
+          <div class="center" id="city_map" style="widht: 640px; height: 480px;"></div>
+          <!-- div class="center" id="city_map">
             <iframe width="640" height="480" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.google.com/maps/ms?hl=en&amp;msid=205250297592689175004.0004fff253b59fc106461&amp;msa=0&amp;ie=UTF8&amp;t=h&amp;ll=23.241346,19.6875&amp;spn=166.90393,89.296875&amp;z=1&amp;output=embed"></iframe><br /><small>View <a href="https://www.google.com/maps/ms?hl=en&amp;msid=205250297592689175004.0004fff253b59fc106461&amp;msa=0&amp;ie=UTF8&amp;t=h&amp;ll=23.241346,19.6875&amp;spn=166.90393,89.296875&amp;z=1&amp;source=embed" style="color:#0000FF;text-align:left">Global Day of Coderetreat 2014</a> in a larger map</small>
-          </div>
+          </div -->
 
           <h2>Can I host or facilitate a coderetreat?</h2>
           <p>Yes you can! To get started, fill in the <a href="http://bit.ly/gdcr14_leader_reg">host and facilitator registration form</a> and we will give you access to leaders-only mailing lists and other resources to help you plan your coderetreat.</p>
@@ -64,6 +65,64 @@
       <div class="container-wide">
       </div><!--/container-->
     </div><!--/footer-->
-    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <script src="http://openlayers.org/api/OpenLayers.js"></script>
+    <script>
+      var toPoint = function(loc) {
+        return new OpenLayers.Geometry.Point(loc.coords[1], loc.coords[0]);
+      };
+
+
+      var basemap = new OpenLayers.Layer.OSM("OpenStreetMap", [
+        "http://otile1.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
+        "http://otile2.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
+        "http://otile3.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg",
+        "http://otile4.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.jpg"
+      ]);
+
+      var locations = [
+        {city: 'Cotonou, Benin', coords: [6.362485, 2.425479]},
+        {city: 'Paris, France', coords: [48.856638, 2.352241]},
+        {city: 'Osnabrück, Germany', coords: [52.267330, 8.053185]},
+        {city: 'Budapest, Hungary', coords: [47.498603, 19.040991]},
+        {city: 'Tel Aviv. Israel', coords: [32.06632, 34.77782]},
+        {city: 'Padua, Italy', coords: [45.409593, 11.876561]},
+        {city: 'Guadalajara, JAL, Mexico', coords: [20.673672, -103.343818]},
+        {city: 'Wellington, New Zealand', coords: [-41.292427, 174.773228]},
+        {city: 'Oslo, Norway', coords: [59.914225, 10.75256]},
+        {city: 'Katowice, Poland', coords: [50.265100, 19.023063]},
+        {city: 'Lodz, Poland', coords: [51.686014, 19.701049]},
+        {city: 'Timișoara, Romania', coords: [45.759780, 21.230020]},
+        {city: 'Cambridge, UK', coords: [52.202600, 0.131224]},
+        {city: 'Des Moines, IA', coords: [41.600397, -93.608982]},
+        {city: 'Pittsburgh, PA', coords: [40.440797, -79.995846]},
+        {city: 'Portland, OR', coords: [45.523824, -122.676443]},
+      ];
+
+
+      var map = new OpenLayers.Map('city_map');
+      map.addControl(new OpenLayers.Control.PanZoomBar());
+      map.addLayer(basemap);
+      map.zoomToMaxExtent();
+
+      var eventsLayer = new OpenLayers.Layer.Vector('GDCR events', {
+        styleMap: new OpenLayers.StyleMap({
+          externalGraphic: "/images/map-pin.png",
+          graphicWidth: 18, graphicHeight: 30,
+          title: '${tooltip}'
+        })
+      });
+
+      $.each(locations, function() {
+        eventsLayer.addFeatures([
+          new OpenLayers.Feature.Vector(
+            toPoint(this).transform("EPSG:4326", "EPSG:3857"),
+            {tooltip: this.city}
+          )
+        ]);
+      });
+      map.addLayer(eventsLayer);
+    </script>
+
 </body>
 </html>
